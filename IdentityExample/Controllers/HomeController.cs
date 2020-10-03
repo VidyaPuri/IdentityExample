@@ -16,16 +16,21 @@ namespace IdentityExample.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IAuthorizationService _authorizationService;
 
         public HomeController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IEmailService emailService)
+            IEmailService emailService,
+            IAuthorizationService authorizationService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _authorizationService = authorizationService;
         }
+
+
 
         public IActionResult Index() 
         {

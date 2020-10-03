@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityExample.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +64,16 @@ namespace IdentityExample
 
             services.AddMailKit(config => config.UseMailKit(_config.GetSection("Email").Get<MailKitOptions>()));
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(config => {
+                
+                //var defaultAuthBuilder = new AuthorizationPolicyBuilder();
+                //var defaultAuthPolicy = defaultAuthBuilder
+                //    .RequireAuthenticatedUser()
+                //    .Build();
+
+                // global authorization filter
+                //config.Filters.Add(new AuthorizeFilter(defaultAuthPolicy));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
