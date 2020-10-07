@@ -14,11 +14,11 @@ namespace ApiTwo
                 .AddJwtBearer("Bearer", config => {
                     config.Authority = "https://localhost:44333/";
                     config.Audience = "ApiTwo";
-                    config.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
+                    //config.TokenValidationParameters = new TokenValidationParameters
+                    //{
+                    //    ValidateIssuer = false,
+                    //    ValidateAudience = false
+                    //};
                 });
 
             services.AddHttpClient();

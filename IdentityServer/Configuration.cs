@@ -1,11 +1,6 @@
 ﻿using IdentityModel;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IdentityServer
 {
@@ -16,11 +11,19 @@ namespace IdentityServer
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                new IdentityResource
+                {
+                    Name = "rc.scope",
+                    UserClaims =
+                    {
+                        "rc.grandma",
+                    }
+                }
             };
 
         public static IEnumerable<ApiResource> GetApis() =>
             new List<ApiResource> {
-                new ApiResource("ApiOne"),
+                new ApiResource("ApiOne", new string[] {"rc.api.grandma"}),
                 new ApiResource("ApiTwo"),
             };
 
@@ -42,13 +45,17 @@ namespace IdentityServer
                     AllowedScopes = {
                             "ApiOne",
                             "ApiTwo",
+                            "rc.scope",
                             IdentityServer4.IdentityServerConstants.StandardScopes.OpenId,
                             IdentityServer4.IdentityServerConstants.StandardScopes.Profile,
                             },
                     RequireConsent = false,
+                    // puts all the claims in the id token
+                    //AlwaysIncludeUserClaimsInIdToken = true,
                     }
             };
 
         public static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> { new ApiScope("ApiOne") };
+
     }
 }

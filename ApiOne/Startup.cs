@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApiOne
 {
@@ -14,6 +15,11 @@ namespace ApiOne
                 {
                     config.Authority = "https://localhost:44333/";
                     config.Audience = "ApiOne";
+                    config.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
                 });
 
             services.AddControllers();

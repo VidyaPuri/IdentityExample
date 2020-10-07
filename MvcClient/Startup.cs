@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,12 +21,24 @@ namespace MvcClient
                     config.Authority = "https://localhost:44333/";
                     config.ClientId = "client_id_mvc";
                     config.ClientSecret = "client_secret_mvc";
-                    config.SaveTokens = true;
-
+                    //config.SaveTokens = true;
                     config.ResponseType = "code";
+
+                    // configure cookie claim mapping
+                    config.ClaimActions.MapUniqueJsonKey("Brinox.Grandma", "rc.grandma");
+
+                    // two trips to load claims in the cookie
+                    // but the id cookie is smaller
+                    config.GetClaimsFromUserInfoEndpoint = true;
+
+                    // configure scope
+                    //config.Scope.Clear();
+                    config.Scope.Add("rc.scope");
+                    config.Scope.Add("openid");
+                    config.Scope.Add("ApiOne");
                 });
 
-
+            services.AddHttpClient();
             services.AddControllersWithViews();
         }
 
