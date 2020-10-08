@@ -21,7 +21,7 @@ namespace MvcClient
                     config.Authority = "https://localhost:44333/";
                     config.ClientId = "client_id_mvc";
                     config.ClientSecret = "client_secret_mvc";
-                    //config.SaveTokens = true;
+                    config.SaveTokens = true;
                     config.ResponseType = "code";
 
                     // configure cookie claim mapping
@@ -36,6 +36,8 @@ namespace MvcClient
                     config.Scope.Add("rc.scope");
                     config.Scope.Add("openid");
                     config.Scope.Add("ApiOne");
+                    config.Scope.Add("ApiTwo");
+                    config.Scope.Add("offline_access");
                 });
 
             services.AddHttpClient();

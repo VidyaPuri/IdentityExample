@@ -23,7 +23,7 @@ namespace IdentityServer
 
         public static IEnumerable<ApiResource> GetApis() =>
             new List<ApiResource> {
-                new ApiResource("ApiOne", new string[] {"rc.api.grandma"}),
+                new ApiResource("ApiOne"),
                 new ApiResource("ApiTwo"),
             };
 
@@ -50,12 +50,18 @@ namespace IdentityServer
                             IdentityServer4.IdentityServerConstants.StandardScopes.Profile,
                             },
                     RequireConsent = false,
+                    AllowOfflineAccess = true,
                     // puts all the claims in the id token
                     //AlwaysIncludeUserClaimsInIdToken = true,
                     }
             };
 
-        public static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> { new ApiScope("ApiOne") };
+        public static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> { 
+            new ApiScope("ApiOne"),
+            new ApiScope("ApiTwo", new string[] { "rc.api.grandma" }),
+            //new ApiScope("refresh_token"),
+
+        };
 
     }
 }
