@@ -12,7 +12,7 @@ namespace ApiTwo
         {
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", config => {
-                    config.Authority = "https://localhost:44333/";
+                    config.Authority = "https://localhost:44346/";
                     config.Audience = "ApiTwo";
                     //config.TokenValidationParameters = new TokenValidationParameters
                     //{
