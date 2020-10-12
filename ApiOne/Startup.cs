@@ -13,7 +13,7 @@ namespace ApiOne
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", config =>
                 {
-                    config.Authority = "https://localhost:44333/";
+                    config.Authority = "https://localhost:44346/";
                     config.Audience = "ApiOne";
                     config.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -21,6 +21,21 @@ namespace ApiOne
                         ValidateAudience = false
                     };
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ApiScope", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "ApiOne");
+                });
+                //options.AddPolicy("ERP.Class.Select", policy =>
+                //    policy.RequireRole("ERP.Class.Select"));
+                options.AddPolicy("ERP.Class.Select", policy => policy.RequireClaim("Class", "Select"));
+                options.AddPolicy("ERP.Class.Insert", policy => policy.RequireClaim("Class", "Insert"));
+                options.AddPolicy("ERP.Class.Update", policy => policy.RequireClaim("Class", "Update"));
+                options.AddPolicy("ERP.Class.Delete", policy => policy.RequireClaim("Class", "Delete"));
+            });
 
             services.AddControllers();
         }
@@ -39,7 +54,8 @@ namespace ApiOne
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllers()
+                    .RequireAuthorization("ApiScope");
             });
         }
     }

@@ -22,9 +22,25 @@ namespace MvcClient.Controllers
             return View();
         }
 
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> Secret()
         {
+            var serverClient = _httpClientFactory.CreateClient();
+
+            var discoveryDocument = await serverClient.GetDiscoveryDocumentAsync("https://localhost:44346/");
+
+            var tokenR = await serverClient.RequestPasswordTokenAsync(
+            new PasswordTokenRequest
+            {
+                GrantType = "password",
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = "Authentication_App",
+                UserName = "testuser",
+                Password = "Test123!",
+                //Scope = "offline_access",
+            });
+
+
             var accessToken = await HttpContext.GetTokenAsync("access_token");
              var idToken = await HttpContext.GetTokenAsync("id_token");
             

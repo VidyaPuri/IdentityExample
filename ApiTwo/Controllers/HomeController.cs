@@ -1,4 +1,5 @@
 ﻿using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -27,37 +28,68 @@ namespace ApiTwo.Controllers
             var serverClient = _httpClientFactory.CreateClient();
 
             var discoveryDocument = await serverClient.GetDiscoveryDocumentAsync("https://localhost:44346/");
-            var tokenResponse = await serverClient.RequestClientCredentialsTokenAsync(
-                new ClientCredentialsTokenRequest
-                {
-                    GrantType = "password",
-                    Address = discoveryDocument.TokenEndpoint,
-                    ClientId = "Authentication_App",
-                    ClientSecret = "client_secret",
-                    //UserName =  "testuser",
-                    //UserPassword ="Test123!",
-                    Scope = "Authentication"
-                });
+            //var tokenResponse = await serverClient.RequestClientCredentialsTokenAsync(
+            //    new ClientCredentialsTokenRequest
+            //    {
+            //        GrantType = "authorization_code",
+            //        Address = discoveryDocument.TokenEndpoint,
+            //        ClientId = "Authentication_App",
+            //        ClientSecret = "client_secret",
+            //        //UserName =  "testuser",
+            //        //UserPassword ="Test123!",<
+            //        Scope = "Authentication"
+            //    });
 
-            var accessToken = tokenResponse.AccessToken;
-            var _accessToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            //PasswordTokenRequest editorPTR = new PasswordTokenRequest()
+            //{
+            //    GrantType = "password",
+            //    Address = discoveryDocument.TokenEndpoint,
+            //    ClientId = "client_editor_v2",
+            //    ClientSecret = "editor_secret",
+            //    UserName = "testuser",
+            //    Password = "Test123!",
+            //};
+
+            var tokenR = await serverClient.RequestPasswordTokenAsync(
+            new PasswordTokenRequest
+            {
+                GrantType = "password",
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = "Authentication_App",
+                UserName = "testuser",
+                Password = "Test123!",
+                Scope = "ApiOne",
+            });
+
+            var it = tokenR.IdentityToken;
+
+            //var accessToken123 = await HttpContext.GetTokenAsync("access_token");
+            //var idToken123 = await HttpContext.GetTokenAsync("id_token");
+
+            //var tkn = await serverClient.Re
+
+            //var accessToken = tokenResponse.AccessToken;
+            var aT = tokenR.AccessToken;
+            //var _accessToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            var _accessToken1 = new JwtSecurityTokenHandler().ReadJwtToken(aT);
 
             // retrieve secret data
             var apiClient = _httpClientFactory.CreateClient();
 
-            apiClient.SetBearerToken(tokenResponse.AccessToken);
+            apiClient.SetBearerToken(tokenR.AccessToken);
 
-            var response = await apiClient.GetAsync("https://localhost:44346/api/identity/users");
-            var response2 = await apiClient.GetAsync("https://localhost:44346/api/language-management/languages");
+            var response = await apiClient.GetAsync("https://localhost:44308/secret");
+            //var response2 = await apiClient.GetAsync("https://localhost:44346/api/language-management/languages");
 
             var content = await response.Content.ReadAsStringAsync();
-            var content2 = await response2.Content.ReadAsStringAsync();
+            //var content2 = await response2.Content.ReadAsStringAsync();
 
             return Ok(new
             {
-                access_token = tokenResponse.AccessToken,
-                message = content,
-                msg = content2
+                access_token = tokenR.AccessToken,
+                msg = _accessToken1.Claims,
+                refresh_token = tokenR.RefreshToken,
+                response = content
             });
         }
 
