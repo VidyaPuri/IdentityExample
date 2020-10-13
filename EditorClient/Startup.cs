@@ -15,34 +15,35 @@ namespace EditorClient
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(config => {
+            services.AddAuthentication(config =>
+            {
                 config.DefaultScheme = "Cookie";
                 config.DefaultChallengeScheme = "oidc";
             })
-            .AddCookie("Cookie")
-            .AddOpenIdConnect("oidc", config =>
-            {
-                config.Authority = "https://localhost:44346/";
-                config.ClientId = "Authentication_Editor";
-                config.ClientSecret = "client_secret";
-                config.SaveTokens = true;
-                config.ResponseType = "code";
+            .AddCookie("Cookie");
+            //.AddOpenIdConnect("oidc", config =>
+            //{
+            //    config.Authority = "https://localhost:44346/";
+            //    config.ClientId = "Authentication_Editor";
+            //    config.ClientSecret = "client_secret";
+            //    config.SaveTokens = true;
+            //    config.ResponseType = "code";
 
-                    // configure cookie claim mapping
-                    //config.ClaimActions.MapUniqueJsonKey("Brinox.Grandma", "rc.grandma");
+            //        // configure cookie claim mapping
+            //        //config.ClaimActions.MapUniqueJsonKey("Brinox.Grandma", "rc.grandma");
 
-                    // two trips to load claims in the cookie
-                    // but the id cookie is smaller
-                    config.GetClaimsFromUserInfoEndpoint = true;
+            //        // two trips to load claims in the cookie
+            //        // but the id cookie is smaller
+            //        config.GetClaimsFromUserInfoEndpoint = true;
 
-                    // configure scope
-                    //config.Scope.Clear();
-                    //config.Scope.Add("rc.scope");
-                    config.Scope.Add("openid");
-                    //config.Scope.Add("ApiOne");
-                    //config.Scope.Add("ApiTwo");
-                    config.Scope.Add("offline_access");
-        });
+            //        // configure scope
+            //        //config.Scope.Clear();
+            //        //config.Scope.Add("rc.scope");
+            //        config.Scope.Add("openid");
+            //        //config.Scope.Add("ApiOne");
+            //        //config.Scope.Add("ApiTwo");
+            //        config.Scope.Add("offline_access");
+        //});
 
             services.AddHttpClient();
             services.AddControllersWithViews();

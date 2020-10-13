@@ -57,7 +57,6 @@ namespace IdentityServer
             {
                 app.UseDeveloperExceptionPage();
             }
-
             app.UseRouting();
 
             app.UseIdentityServer();

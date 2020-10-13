@@ -1,29 +1,41 @@
 ﻿using IdentityModel.Client;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Identity;
+using Volo.Abp.Modularity;
 
-namespace ApiTwo.Controllers
+namespace EditorClient.Controllers
 {
     public partial class HomeController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
+
+        private UserModel _user = new UserModel();
+
+        public UserModel User
+        {
+            get { return _user; }
+            private set
+            {
+                _user = value;
+                if (_user != null)
+                {
+                    JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                    _user.DecodedAccessToken = handler.ReadJwtToken(_user.AccessToken);
+                }
+            }
+        }
+
 
         public HomeController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        [Route("/")]
         public async Task<IActionResult> Index()
         {
             // retrieve access token
@@ -43,34 +55,70 @@ namespace ApiTwo.Controllers
                 Scope = "",
             });
 
-            var userInfo = await serverClient.GetUserInfoAsync(
+            //var rspt = await serverClient.RequestTokenAsync(
+            //    new TokenRequest
+            //    {
+            //        GrantType = "client_credentials",
+            //        Address = discoveryDocument.TokenEndpoint,
+            //        ClientId = "Authentication_Editor",
+            //        ClientSecret = "editor_secret"
+            //    });
+
+            UserInfoResponse userInfo = await serverClient.GetUserInfoAsync(
                 new UserInfoRequest
                 {
                     Address = discoveryDocument.UserInfoEndpoint,
                     Token = responseToken.AccessToken
                 });
 
-            var accessToken = responseToken.AccessToken;
+            User.AccessToken = responseToken.AccessToken; 
+            User.RefreshToken = responseToken.RefreshToken;
 
-            var _accessToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-
+            var _accessToken = new JwtSecurityTokenHandler().ReadJwtToken(User.AccessToken);
+            //var infoClaims = userInfo.Claims;
             var claims = _accessToken.Claims;
+
+
+            //var userAppService = GetRequiredService<IIdentityUserAppService>();
+
+            var user = new ClaimsPrincipal();
+
+            //var id = HttpContext.User.Identity;
+            //profileAppService = new ProfileAppService();
+
+            //var profileDto = await _profileAppService.GetAsync();
+
 
             // retrieve secret data
             var apiClient = _httpClientFactory.CreateClient();
 
-            apiClient.SetBearerToken(responseToken.AccessToken);
+            apiClient.SetBearerToken(User.AccessToken);
 
             var response = await apiClient.GetAsync("https://localhost:44308/secret");
-            //var response2 = await apiClient.GetAsync("https://localhost:44346/api/language-management/languages");
+
+            if (response.Headers.Contains("token-expired") && response.Headers.GetValues("Token-Expired").FirstOrDefault().ToLower().Trim() == "true")
+            {
+                // Token expired - login with refresh token and retry request
+                await RefreshAccessToken(User.RefreshToken);
+
+                apiClient.SetBearerToken(User.AccessToken);
+                response = await apiClient.GetAsync("https://localhost:44308/secret");
+            }
+
             var content = await response.Content.ReadAsStringAsync();
-            //var content2 = await response2.Content.ReadAsStringAsync();
-            //var cont = JArray.Parse(content);
+
 
             return Ok(new
             {
                 data = content,
             }) ;
+
+        }
+
+        [Route("/secret")]
+        public async Task<IActionResult> Secret()
+        {
+            return Ok();
         }
 
         [Route("/login")]
@@ -114,6 +162,37 @@ namespace ApiTwo.Controllers
                 //message = usercontent2,
                 //respones = serverResponse.Content
             }) ;
+        }
+
+
+        /// <summary>
+        /// Getting refresh token
+        /// </summary>
+        /// <returns></returns>
+        private async Task RefreshAccessToken(string refreshToken)
+        {
+            var serverClient = _httpClientFactory.CreateClient();
+            var discoveryDocument = await serverClient.GetDiscoveryDocumentAsync("https://localhost:44346/");
+
+            var refreshTokenClient = _httpClientFactory.CreateClient();
+
+            var tokenResponse = await refreshTokenClient.RequestRefreshTokenAsync(new RefreshTokenRequest
+            {
+                RefreshToken = refreshToken,
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = "Authentication_Editor",
+                ClientSecret = "editor_secret"
+            });
+
+            User.AccessToken = tokenResponse.AccessToken;
+            User.RefreshToken = tokenResponse.RefreshToken;
+
+            //var authInfo = await HttpContext.AuthenticateAsync("Cookie");
+
+            //authInfo.Properties.UpdateTokenValue("access_token", tokenResponse.AccessToken);
+            //authInfo.Properties.UpdateTokenValue("refresh_token", tokenResponse.RefreshToken);
+
+            //await HttpContext.SignInAsync("Cookie", authInfo.Principal, authInfo.Properties);
         }
     }
 }

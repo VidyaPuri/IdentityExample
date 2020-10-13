@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ApiOne
 {
@@ -17,17 +21,33 @@ namespace ApiOne
                     config.Audience = "ApiOne";
                     config.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ValidateAudience = false,
                         ValidateIssuer = false,
-                        ValidateAudience = false
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        //ValidateIssuerSigningKey = true,
+                        //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecretTestKey")),
+                    };
+                    config.Events = new JwtBearerEvents()
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            {
+                                context.Response.Headers.Add("Token-Expired", "true");
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
+
 
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ApiScope", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "ApiOne");
+                    //policy.RequireClaim("scope", "ApiOne");
                 });
                 //options.AddPolicy("ERP.Class.Select", policy =>
                 //    policy.RequireRole("ERP.Class.Select"));
