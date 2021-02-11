@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiTwo", "ApiTwo\ApiTwo.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcClient", "MvcClient\MvcClient.csproj", "{58EF6081-EB24-42ED-BBD4-CC858B4F7D78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorClient", "EditorClient\EditorClient.csproj", "{B3D8D0CF-5515-4A53-A233-F6ACD332F1C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientCredentialsClient", "EditorClient\ClientCredentialsClient.csproj", "{B3D8D0CF-5515-4A53-A233-F6ACD332F1C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

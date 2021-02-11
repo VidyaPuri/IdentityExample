@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,25 +17,25 @@ namespace EditorClient
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(config =>
-            {
-                config.DefaultScheme = "Cookie";
-                config.DefaultChallengeScheme = "oidc";
-            })
-            .AddCookie("Cookie")
-            .AddOpenIdConnect("oidc", config =>
-            {
-                config.Authority = "https://localhost:44346/";
-                config.ClientId = "Authentication_Editor";
-                config.ClientSecret = "editor_secret";
-                config.SaveTokens = true;
-                config.ResponseType = "code";
+            //services.AddAuthentication(config =>
+            //{
+            //    config.DefaultScheme = "Cookie";
+            //    config.DefaultChallengeScheme = "oidc";
+            //})
+            //.AddCookie("Cookie")
+            //.AddOpenIdConnect("oidc", config =>
+            //{
+            //    config.Authority = "https://authentication.vsrt-ws.brinox.si/";
+            //    config.ClientId = "Authentication_Editor";
+            //    config.ClientSecret = "editor_secret";
+            //    config.SaveTokens = true;
+            //    config.ResponseType = "code";
 
-                // configure scope
-                config.Scope.Add("openid");
-                config.Scope.Add("offline_access");
-            });
-
+            //    // configure scope
+            //    config.Scope.Add("openid");
+            //    config.Scope.Add("offline_access");
+            //});
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ApiScope", policy =>

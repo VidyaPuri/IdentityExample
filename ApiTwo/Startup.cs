@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -11,42 +12,50 @@ namespace ApiTwo
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication("Bearer")
-                //.AddOpenIdConnect("oidc", config =>
-                //{
-                //    config.Authority = "https://localhost:44346/";
-                //    config.ClientId = "Authentication_App";
-                //    config.ClientSecret = "client_secret";
-                //    config.SaveTokens = true;
-                //    config.ResponseType = "password";
+            services.Configure<IISOptions>(options => {
+                //options.AuthenticationDescriptions holds a list of allowed authentication schemes
+                options.AutomaticAuthentication = true;
+                options.ForwardClientCertificate = true;
+                //options.ForwardWindowsAuthentication = true;
+            });
 
-                //    // configure cookie claim mapping
-                //    //config.ClaimActions.MapUniqueJsonKey("Brinox.Grandma", "rc.grandma");
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            //services.AddAuthentication("Bearer")
+            //    //.AddOpenIdConnect("oidc", config =>
+            //    //{
+            //    //    config.Authority = "https://localhost:44346/";
+            //    //    config.ClientId = "Authentication_App";
+            //    //    config.ClientSecret = "client_secret";
+            //    //    config.SaveTokens = true;
+            //    //    config.ResponseType = "password";
 
-                //    // two trips to load claims in the cookie
-                //    // but the id cookie is smaller
-                //    config.GetClaimsFromUserInfoEndpoint = true;
+            //    //    // configure cookie claim mapping
+            //    //    //config.ClaimActions.MapUniqueJsonKey("Brinox.Grandma", "rc.grandma");
 
-                //    // configure scope
-                //    //config.Scope.Clear();
-                //    config.Scope.Add("rc.scope");
-                //    config.Scope.Add("openid");
-                //    config.Scope.Add("ApiOne");
-                //    config.Scope.Add("ApiTwo");
-                //    //config.Scope.Add("offline_access");
-                //})
-                .AddJwtBearer("Bearer", config =>
-                {
-                    config.Authority = "https://localhost:44346/";
-                    config.Audience = "ApiTwo";
-                    //config.TokenValidationParameters = new TokenValidationParameters
-                    //{
-                    //    ValidateIssuer = false,
-                    //    ValidateAudience = false
-                    //};
+            //    //    // two trips to load claims in the cookie
+            //    //    // but the id cookie is smaller
+            //    //    config.GetClaimsFromUserInfoEndpoint = true;
 
-                });
-                 
+            //    //    // configure scope
+            //    //    //config.Scope.Clear();
+            //    //    config.Scope.Add("rc.scope");
+            //    //    config.Scope.Add("openid");
+            //    //    config.Scope.Add("ApiOne");
+            //    //    config.Scope.Add("ApiTwo");
+            //    //    //config.Scope.Add("offline_access");
+            //    //})
+            //    .AddJwtBearer("Bearer", config =>
+            //    {
+            //        config.Authority = "https://localhost:44346/";
+            //        config.Audience = "ApiTwo";
+            //        //config.TokenValidationParameters = new TokenValidationParameters
+            //        //{
+            //        //    ValidateIssuer = false,
+            //        //    ValidateAudience = false
+            //        //};
+
+            //    });
+            services.AddAuthorization();
 
             services.AddHttpClient();
 
